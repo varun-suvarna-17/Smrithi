@@ -1,7 +1,89 @@
-import React from 'react';
-import { User, Activity, Brain, FileText, CheckCircle, Droplet, ChevronDown, ArrowRight } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { User, Activity, Brain, FileText, CheckCircle, Droplet, ChevronDown, ArrowRight, AlertCircle } from 'lucide-react';
+import { caregiverAPI, patientAPI, progressAPI } from '../utils/api';
 
 export default function CaregiverDashboard() {
+  const [patients, setPatients] = useState([]);
+  const [selectedPatient, setSelectedPatient] = useState(null);
+  const [progress, setProgress] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Fetch caregiver's assigned patients and data
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        
+        // Get assigned patients
+        const patientsResponse = await caregiverAPI.getAssignedPatients();
+        const pats = patientsResponse.data || [];
+        setPatients(pats);
+        
+        // Select first patient by default
+        if (pats.length > 0) {
+          setSelectedPatient(pats[0]);
+          
+          // Get their progress
+          const progressResponse = await progressAPI.getProgress(pats[0].id);
+          setProgress(progressResponse.data);
+        }
+      } catch (err) {
+        console.error('Error fetching dashboard:', err);
+        setError(err.message);
+        // Use dummy data
+        setPatients([{
+          id: 'dummy_1',
+          name: 'Asha Devi',
+          age: 72,
+          patientId: 'ASH1023',
+          profileImg: 'https://i.pravatar.cc/150?u=asha'
+        }]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  // Fetch progress when patient changes
+  useEffect(() => {
+    if (selectedPatient) {
+      const fetchProgress = async () => {
+        try {
+          const progressResponse = await progressAPI.getProgress(selectedPatient.id);
+          setProgress(progressResponse.data);
+        } catch (err) {
+          console.error('Error fetching progress:', err);
+        }
+      };
+      fetchProgress();
+    }
+  }, [selectedPatient]);
+
+  if (loading) {
+    return (
+      <div style={styles.container}>
+        <div style={{ textAlign: 'center', padding: '40px' }}>
+          <p>Loading dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error && patients.length === 0) {
+    return (
+      <div style={styles.container}>
+        <div style={{ ...styles.card, color: 'red', padding: '20px' }}>
+          <AlertCircle size={24} />
+          <p>Error loading dashboard: {error}</p>
+        </div>
+      </div>
+    );
+  }
+
+  const patient = selectedPatient || patients[0];
   return (
     <div style={styles.container}>
       {/* Patient Header */}

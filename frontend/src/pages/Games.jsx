@@ -1,9 +1,74 @@
-import React, { useState } from 'react';
-import { Heart, Play, UtensilsCrossed, Music, Grid3X3, ShoppingBag, ArrowLeft, Lightbulb, CheckCircle2, RefreshCw, Volume2, Sparkles } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Heart, Play, UtensilsCrossed, Music, Grid3X3, ShoppingBag, ArrowLeft, Lightbulb, CheckCircle2, RefreshCw, Volume2, Sparkles, AlertCircle } from 'lucide-react';
 import { soundFx } from '../utils/audio';
+import { gameAPI } from '../utils/api';
 
 export default function Games() {
-  const [activeGame, setActiveGame] = useState(null); // null = overview list, string = active game key
+  const [activeGame, setActiveGame] = useState(null);
+  const [games, setGames] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Fetch available games from backend
+  useEffect(() => {
+    const fetchGames = async () => {
+      try {
+        setLoading(true);
+        const response = await gameAPI.getAvailableGames();
+        setGames(response.data || []);
+      } catch (err) {
+        console.error('Error fetching games:', err);
+        setError(err.message);
+        // Use default games if backend fails
+        setGames([
+          {
+            id: 'family_portrait',
+            title: 'Family Portrait',
+            description: 'Recognize family members in photos',
+            icon: 'Heart',
+            difficulty: 'Easy',
+            color: 'var(--primary-color)'
+          },
+          {
+            id: 'kitchen_memories',
+            title: 'Kitchen Memories',
+            description: 'Remember cooking ingredients and recipes',
+            icon: 'UtensilsCrossed',
+            difficulty: 'Medium',
+            color: '#8d6e63'
+          },
+          {
+            id: 'rhythm_match',
+            title: 'Rhythm Match',
+            description: 'Follow musical patterns and sequences',
+            icon: 'Music',
+            difficulty: 'Medium',
+            color: '#e91e63'
+          },
+          {
+            id: 'folk_motif',
+            title: 'Folk Motif',
+            description: 'Match traditional patterns and designs',
+            icon: 'Grid3X3',
+            difficulty: 'Hard',
+            color: '#ff9800'
+          },
+          {
+            id: 'weekly_bazaar',
+            title: 'Weekly Bazaar',
+            description: 'Shop and recall products you\'ve seen before',
+            icon: 'ShoppingBag',
+            difficulty: 'Medium',
+            color: '#4caf50'
+          }
+        ]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchGames();
+  }, []);
 
   if (activeGame === 'family_portrait') {
     return <FamilyPortraitGame onBack={() => setActiveGame(null)} />;

@@ -1,15 +1,54 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Gamepad2, Mic, Eye, CheckCircle2, Clock, Music, Flower2, Heart, PlusCircle, ArrowRight, X } from 'lucide-react';
+import { patientAPI, reminderAPI, progressAPI } from '../utils/api';
 
 export default function Home() {
   const navigate = useNavigate();
-  const [journeyCompleted, setJourneyCompleted] = useState(2); // 2 out of 4
+  const [patient, setPatient] = useState(null);
+  const [reminders, setReminders] = useState([]);
+  const [progress, setProgress] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [journeyCompleted, setJourneyCompleted] = useState(2);
   const [medicineTaken, setMedicineTaken] = useState(false);
-  const [hydrationGlasses, setHydrationGlasses] = useState(6); // 6 out of 8 (2 left)
+  const [hydrationGlasses, setHydrationGlasses] = useState(6);
   const [activeLightbox, setActiveLightbox] = useState(null);
   const [showTalkModal, setShowTalkModal] = useState(false);
   const [talkTranscript, setTalkTranscript] = useState("Hi Asha, how are you feeling today? I am here to listen.");
+
+  // Fetch data from backend
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        // Get patient profile
+        const patientResponse = await patientAPI.getAll();
+        if (patientResponse.data && patientResponse.data.length > 0) {
+          const pat = patientResponse.data[0];
+          setPatient(pat);
+          
+          // Get reminders
+          const remindersResponse = await reminderAPI.getReminders(pat.id);
+          setReminders(remindersResponse.data || []);
+          
+          // Get progress
+          const progressResponse = await progressAPI.getProgress(pat.id);
+          setProgress(progressResponse.data);
+        }
+      } catch (err) {
+        console.error('Error fetching data:', err);
+        setError(err.message);
+        // Use dummy data if API fails
+        setJourneyCompleted(2);
+        setHydrationGlasses(6);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const memoriesList = [
     {
