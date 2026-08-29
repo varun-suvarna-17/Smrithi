@@ -1,51 +1,19 @@
-# Python
+# Python cache files
 __pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-env/
-venv/
-ENV/
+*.pyc
+*.pyo
+*.pyd
+
+# Environments
 .venv/
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
+venv/
+env/
+ENV/
 
-# Environment variables & Secrets
-.env
-.env.local
-.env.*.local
-serviceAccountKey.json
-
-# Testing & Coverage
-.pytest_cache/
-.coverage
-htmlcov/
-
-# IDE & OS
+# OS and IDE configuration files
 .vscode/
-.idea/
-*.swp
-*.swo
-*~
 .DS_Store
 Thumbs.db
 
-# Storage / Audio artifacts
-audio_cache/
-*.mp3
-*.wav
-temp/
+# Private security credentials for Firebase database
+*credentials*.json
