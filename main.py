@@ -1,4 +1,4 @@
-﻿import os
+import os
 import random
 from typing import Dict, Any, List
 from fastapi import FastAPI, HTTPException, status
@@ -11,6 +11,7 @@ app = FastAPI(
     version="1.1.0"
 )
 
+# Enable CORS so your React Frontend teammates can connect to your local backend server
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"], 
@@ -18,8 +19,10 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-logger = logging.getLogger("smrithi.main")
 
+# =====================================================================
+# 1. LOCAL DATA MOCK (Allows instant testing in VS Code without Firebase setup)
+# =====================================================================
 MOCK_PATIENTS_DB = {
     "patient123": {
         "profile": {"name": "Pranab Gogoi", "age": 74},
@@ -44,6 +47,9 @@ MOCK_PATIENTS_DB = {
 
 MOCK_SESSIONS_DATABASE = []
 
+# =====================================================================
+# 2. DATA SCHEMAS (Pydantic validation layers)
+# =====================================================================
 class GameConfigRequest(BaseModel):
     patient_id: str = Field(..., example="patient123")
     game_type: str = Field(..., description="memory_match | recognition | sequence_recall | motif_weaver | regional_kitchen", example="memory_match")
@@ -58,8 +64,15 @@ class GameSessionPayload(BaseModel):
     mistakes: int = Field(..., ge=0, example=2)
     duration_seconds: float = Field(..., ge=0.0, example=18.4)
 
+# =====================================================================
+# 3. ENDPOINT 1: LOCALIZED CONFIGURATION GENERATION
+# =====================================================================
 @app.post("/api/games/config", status_code=status.HTTP_200_OK)
 async def get_game_configuration(payload: GameConfigRequest) -> Dict[str, Any]:
+    """
+    Unified configuration endpoint. Serves localized asset layouts and 
+    audio prompts for all 5 games based on language and difficulty.
+    """
     patient = MOCK_PATIENTS_DB.get(payload.patient_id)
     if not patient:
         raise HTTPException(
@@ -71,8 +84,9 @@ async def get_game_configuration(payload: GameConfigRequest) -> Dict[str, Any]:
     difficulty = settings.get("difficulty_level", 1)
     lang = payload.language.lower() if payload.language.lower() in ["as", "kha"] else "as"
 
+    # GAME 1: MEMORY MATCH (Remember -> Find -> Match)
     if payload.game_type == "memory_match":
-        card_pairs_count = 2 + difficulty
+        card_pairs_count = 2 + difficulty  # Level 1 = 3 pairs, Level 3 = 5 pairs
         items_pool = [
             {"id": "tea_cup", "emoji": "☕"},
             {"id": "rickshaw", "emoji": "🛺"},
@@ -93,6 +107,7 @@ async def get_game_configuration(payload: GameConfigRequest) -> Dict[str, Any]:
             "rules": {"required_pairs_to_win": card_pairs_count}
         }
 
+    # GAME 2: RECOGNITION (See -> Recognize -> Select)
     elif payload.game_type == "recognition":
         facts = settings.get("personalization_facts", [])
         if facts and difficulty > 1:
@@ -123,8 +138,9 @@ async def get_game_configuration(payload: GameConfigRequest) -> Dict[str, Any]:
             "options": options
         }
 
+    # GAME 3: SEQUENCE RECALL (Observe -> Remember -> Reproduce)
     elif payload.game_type == "sequence_recall":
-        sequence_length = 2 + difficulty
+        sequence_length = 2 + difficulty  # Level 1 = 3 beats, Level 3 = 5 beats
         beats_pool = ["Dhol_Low", "Dhol_High", "Pepa_Short", "Pepa_Long"]
         generated_sequence = [random.choice(beats_pool) for _ in range(sequence_length)]
         
@@ -141,6 +157,7 @@ async def get_game_configuration(payload: GameConfigRequest) -> Dict[str, Any]:
             ]
         }
 
+    # GAME 4: FOLK MOTIF WEAVER (Observe Pattern -> Remember -> Complete)
     elif payload.game_type == "motif_weaver":
         pattern_id = f"gamosa_pattern_{difficulty}"
         correct_index = {"gamosa_pattern_1": 0, "gamosa_pattern_2": 2, "gamosa_pattern_3": 1}
@@ -158,6 +175,7 @@ async def get_game_configuration(payload: GameConfigRequest) -> Dict[str, Any]:
             "correct_index": correct_index.get(pattern_id, 0)
         }
 
+    # GAME 5: REGIONAL KITCHEN (Observe Ingredients -> Remember Order -> Recreate)
     elif payload.game_type == "regional_kitchen":
         recipes = {
             "as": {
@@ -191,16 +209,26 @@ async def get_game_configuration(payload: GameConfigRequest) -> Dict[str, Any]:
 
     raise HTTPException(status_code=400, detail="Unknown game type requested.")
 
+# =====================================================================
+# 4. ENDPOINT 2: GAMEPLAY LOGGING & ADAPTIVE DIFFICULTY TUNER
+# =====================================================================
 @app.post("/api/games/session", status_code=status.HTTP_201_CREATED)
 async def process_game_session(payload: GameSessionPayload) -> Dict[str, Any]:
+    """
+    Computes game accuracy, logs sessions, and implements automatic difficulty adjustments:
+    - Downward Hook (Frustration Prevention): Lower level if mistakes >= 3 or accuracy < 60%
+    - Upward Hook (Challenge Progression): Raise level if accuracy >= 85% and mistakes < 2
+    """
     patient = MOCK_PATIENTS_DB.get(payload.patient_id)
     if not patient:
         raise HTTPException(status_code=404, detail="Patient profile not found.")
 
+    # Calculate metrics
     total = payload.total_taps
     accuracy = (payload.correct_taps / total * 100) if total > 0 else 0.0
     avg_latency = (payload.duration_seconds / total) if total > 0 else 0.0
 
+    # Save gameplay session
     session_id = f"sess_{len(MOCK_SESSIONS_DATABASE) + 1:03d}"
     MOCK_SESSIONS_DATABASE.append({
         "session_id": session_id,
@@ -212,6 +240,7 @@ async def process_game_session(payload: GameSessionPayload) -> Dict[str, Any]:
         "avg_latency": round(avg_latency, 2)
     })
 
+    # Rule-Based Adaptive Logic (Downward/Upward Hooks)
     settings = patient.get("settings", {})
     current_difficulty = settings.get("difficulty_level", 1)
     lock_active = settings.get("lock_difficulty", False)
@@ -221,11 +250,13 @@ async def process_game_session(payload: GameSessionPayload) -> Dict[str, Any]:
     adapted = False
 
     if not lock_active:
+        # Downward Hook (Frustration Prevention Rule)
         if payload.mistakes >= 3 or accuracy < 60.0:
             if current_difficulty > 1:
                 new_difficulty = current_difficulty - 1
                 adapted = True
                 status_msg = f"Frustration detected: Decreased level {current_difficulty} -> {new_difficulty}"
+        # Upward Hook (Challenge Progression Rule)
         elif accuracy >= 85.0 and payload.mistakes < 2:
             if current_difficulty < 3:
                 new_difficulty = current_difficulty + 1
@@ -247,12 +278,22 @@ async def process_game_session(payload: GameSessionPayload) -> Dict[str, Any]:
         }
     }
 
+# =====================================================================
+# 5. ENDPOINT 3: PATIENT SUMMARY & SESSION HISTORY
+# =====================================================================
 @app.get("/api/patients/{patient_id}/summary", status_code=status.HTTP_200_OK)
 async def get_patient_summary(patient_id: str) -> Dict[str, Any]:
+    """
+    Fetches profile, current active difficulty settings, and past session history.
+    """
     patient = MOCK_PATIENTS_DB.get(patient_id)
     if not patient:
-        raise HTTPException(status_code=404, detail=f"Patient '{patient_id}' not found.")
+        raise HTTPException(
+            status_code=404, 
+            detail=f"Patient '{patient_id}' not found."
+        )
     
+    # Filter sessions for this specific patient
     patient_sessions = [
         sess for sess in MOCK_SESSIONS_DATABASE 
         if sess["patient_id"] == patient_id
