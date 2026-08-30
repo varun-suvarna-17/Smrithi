@@ -12,7 +12,6 @@ service cloud.firestore {
     }
   }
 }
-=======
 # SMRITHI – AI-Powered Elderly Care Platform
 ### Cognitive Gaming and Memory Assistance Platform for Elderly Dementia Patients in North East India
 **Smart India Hackathon (SIH) Problem Statement:** `SIH26003`
@@ -528,4 +527,3 @@ Import `Smrithi_Backend.postman_collection.json` directly into Postman. It inclu
 - **Adaptive Difficulty**: Features a clear, production-grade statistical feature extractor and heuristic rule engine, alongside an ML pipeline scaffold. It does not make false claims of opaque black-box AI.
 - **Clinical AI Summary**: Built-in deterministic clinical intelligence engine generates structured progress summaries directly from stored game attempts, with optional integration for Google Gemini via `GEMINI_API_KEY`.
 - **Database**: Full MongoDB database integration with an automatic zero-config in-memory fallback for instant local evaluation.
-
