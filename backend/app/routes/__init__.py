@@ -1,10 +1,16 @@
-from app.routes import profile, sessions, reminders, dashboard, settings, voice
+from app.routes import (
+    auth, patients, caregivers, games, adaptive, progress, languages, voice, reminders, reports
+)
 
 __all__ = [
-    "profile",
-    "sessions",
+    "auth",
+    "patients",
+    "caregivers",
+    "games",
+    "adaptive",
+    "progress",
+    "languages",
+    "voice",
     "reminders",
-    "dashboard",
-    "settings",
-    "voice"
+    "reports"
 ]

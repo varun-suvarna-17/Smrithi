@@ -1,0 +1,29 @@
+{
+  "name": "smrithi",
+  "version": "1.0.0",
+  "description": "SMRITHI - Caregiver Assistant Platform (Full-Stack Monorepo)",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently \"npm run backend:dev\" \"npm run frontend:dev\"",
+    "backend:dev": "cd backend && python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000",
+    "frontend:dev": "cd frontend && npm run dev",
+    "backend:build": "cd backend && echo 'Backend is ready'",
+    "frontend:build": "cd frontend && npm run build",
+    "build": "npm run backend:build && npm run frontend:build",
+    "backend:install": "cd backend && pip install -r requirements.txt",
+    "frontend:install": "cd frontend && npm install",
+    "install:all": "npm install && npm run backend:install && npm run frontend:install"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "keywords": [
+    "caregiver",
+    "elderly-care",
+    "ai-powered",
+    "adaptive-learning",
+    "memory-care"
+  ],
+  "author": "SMRITHI Team",
+  "license": "MIT"
+}

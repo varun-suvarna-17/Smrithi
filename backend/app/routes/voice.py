@@ -1,7 +1,7 @@
 from pathlib import Path
 from fastapi import APIRouter, HTTPException, status
 from fastapi.responses import FileResponse
-from app.models.voice import VoiceSynthesisRequest, VoiceSynthesisResponse
+from app.schemas import VoiceSynthesisRequest, VoiceSynthesisResponse
 from app.services.voice_service import VoiceService
 from app.core.config import settings
 
