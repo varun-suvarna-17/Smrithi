@@ -1,24 +1,32 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Heart, Play, UtensilsCrossed, Music, Grid3X3, ShoppingBag, ArrowLeft, Lightbulb, CheckCircle2, RefreshCw, Volume2, Sparkles } from 'lucide-react';
 import { soundFx } from '../utils/audio';
+import VoiceLanguagePanel from '../components/VoiceLanguagePanel';
+import { speakVoicePrompt, stopVoicePlayback } from '../utils/voice';
 
 export default function Games() {
   const [activeGame, setActiveGame] = useState(null); // null = overview list, string = active game key
+  const [selectedLanguage, setSelectedLanguage] = useState(() => localStorage.getItem('smrithi-voice-language') || 'en');
+
+  const handleLanguageChange = (language) => {
+    setSelectedLanguage(language);
+    localStorage.setItem('smrithi-voice-language', language);
+  };
 
   if (activeGame === 'family_portrait') {
-    return <FamilyPortraitGame onBack={() => setActiveGame(null)} />;
+    return <FamilyPortraitGame onBack={() => setActiveGame(null)} language={selectedLanguage} />;
   }
   if (activeGame === 'kitchen_memories') {
-    return <KitchenMemoriesGame onBack={() => setActiveGame(null)} />;
+    return <KitchenMemoriesGame onBack={() => setActiveGame(null)} language={selectedLanguage} />;
   }
   if (activeGame === 'rhythm_match') {
-    return <RhythmMatchGame onBack={() => setActiveGame(null)} />;
+    return <RhythmMatchGame onBack={() => setActiveGame(null)} language={selectedLanguage} />;
   }
   if (activeGame === 'folk_motif') {
-    return <FolkMotifGame onBack={() => setActiveGame(null)} />;
+    return <FolkMotifGame onBack={() => setActiveGame(null)} language={selectedLanguage} />;
   }
   if (activeGame === 'weekly_bazaar') {
-    return <WeeklyBazaarGame onBack={() => setActiveGame(null)} />;
+    return <WeeklyBazaarGame onBack={() => setActiveGame(null)} language={selectedLanguage} />;
   }
 
   return (
@@ -30,6 +38,8 @@ export default function Games() {
           Take a gentle journey through familiar memories and activities.
         </p>
       </header>
+
+      <VoiceLanguagePanel selectedLanguage={selectedLanguage} onLanguageChange={handleLanguageChange} />
 
       {/* Grid of 5 games matching the new screenshot */}
       <div style={styles.playGrid}>
@@ -158,14 +168,39 @@ export default function Games() {
 
 /* We preserve all inner helper components and override outer classes inside css/inline styles */
 
+function useGameVoice(language, introductionKeys) {
+  useEffect(() => {
+    let isActive = true;
+
+    const introduceGame = async () => {
+      for (const key of introductionKeys) {
+        if (!isActive) {
+          return;
+        }
+        await speakVoicePrompt(language, key);
+      }
+    };
+
+    introduceGame();
+    return () => {
+      isActive = false;
+      stopVoicePlayback();
+    };
+  }, [language]);
+
+  return (key) => {
+    void speakVoicePrompt(language, key);
+  };
+}
 
 /* ========================================================================== */
 /* GAME 1: FAMILY PORTRAIT INTERACTIVE COMPONENT                             */
 /* ========================================================================== */
-function FamilyPortraitGame({ onBack }) {
+function FamilyPortraitGame({ onBack, language }) {
   const [showHint, setShowHint] = useState(false);
   const [completed, setCompleted] = useState(false);
   const [currentPromptIndex, setCurrentPromptIndex] = useState(0);
+  const speak = useGameVoice(language, ['welcome', 'select_object']);
 
   const prompts = [
     { name: 'Priya', role: 'your daughter', hint: 'Priya is standing on the right wearing the dark woven Mekhela Chador.' },
@@ -178,6 +213,7 @@ function FamilyPortraitGame({ onBack }) {
   const handleTapTarget = () => {
     soundFx.playSuccess();
     setCompleted(true);
+    speak('correct');
   };
 
   const handleNext = () => {
@@ -185,6 +221,7 @@ function FamilyPortraitGame({ onBack }) {
     setCompleted(false);
     setShowHint(false);
     setCurrentPromptIndex((prev) => (prev + 1) % prompts.length);
+    speak('select_object');
   };
 
   return (
@@ -267,7 +304,7 @@ function FamilyPortraitGame({ onBack }) {
 /* ========================================================================== */
 /* GAME 2: KITCHEN MEMORIES INTERACTIVE COMPONENT                             */
 /* ========================================================================== */
-function KitchenMemoriesGame({ onBack }) {
+function KitchenMemoriesGame({ onBack, language }) {
   const stepsTarget = [
     { id: 'kolakhar', name: 'Kolakhar Water', desc: 'Banana ash alkali extract' },
     { id: 'papaya', name: 'Raw Papaya', desc: 'Grated green omita' },
@@ -277,6 +314,7 @@ function KitchenMemoriesGame({ onBack }) {
 
   const [selectedSteps, setSelectedSteps] = useState([]);
   const [dishCompleted, setDishCompleted] = useState(false);
+  const speak = useGameVoice(language, ['welcome', 'select_object']);
 
   const availableIngredients = [
     { id: 'kolakhar', name: 'Filtered Kolakhar Water', icon: '🍶' },
@@ -294,6 +332,7 @@ function KitchenMemoriesGame({ onBack }) {
     if (updated.length === 4) {
       soundFx.playSuccess();
       setDishCompleted(true);
+      speak('game_complete');
     }
   };
 
@@ -400,10 +439,11 @@ function KitchenMemoriesGame({ onBack }) {
 /* ========================================================================== */
 /* GAME 3: RHYTM MATCH INTERACTIVE COMPONENT                                  */
 /* ========================================================================== */
-function RhythmMatchGame({ onBack }) {
+function RhythmMatchGame({ onBack, language }) {
   const [userTaps, setUserTaps] = useState(0);
   const [isPlayingDemo, setIsPlayingDemo] = useState(false);
   const [completed, setCompleted] = useState(false);
+  const speak = useGameVoice(language, ['welcome']);
 
   const targetBeats = 3;
 
@@ -432,6 +472,7 @@ function RhythmMatchGame({ onBack }) {
       setTimeout(() => {
         soundFx.playSuccess();
         setCompleted(true);
+        speak('game_complete');
       }, 300);
     }
   };
@@ -509,9 +550,10 @@ function RhythmMatchGame({ onBack }) {
 /* ========================================================================== */
 /* GAME 4: FOLK MOTIF WEAVER INTERACTIVE COMPONENT                             */
 /* ========================================================================== */
-function FolkMotifGame({ onBack }) {
+function FolkMotifGame({ onBack, language }) {
   const [selectedMotif, setSelectedMotif] = useState(null);
   const [isCorrect, setIsCorrect] = useState(false);
+  const speak = useGameVoice(language, ['welcome', 'select_object']);
 
   const options = [
     { id: 'rhino', name: 'Kaziranga Rhino', icon: '🦏', desc: 'Symbol of strength & heritage', correct: true },
@@ -524,9 +566,11 @@ function FolkMotifGame({ onBack }) {
     if (opt.correct) {
       soundFx.playSuccess();
       setIsCorrect(true);
+      speak('correct');
     } else {
       soundFx.playSoftTap();
       setIsCorrect(false);
+      speak('wrong');
     }
   };
 
@@ -618,9 +662,10 @@ function FolkMotifGame({ onBack }) {
 /* ========================================================================== */
 /* GAME 5: WEEKLY BAZAAR INTERACTIVE COMPONENT                               */
 /* ========================================================================== */
-function WeeklyBazaarGame({ onBack }) {
+function WeeklyBazaarGame({ onBack, language }) {
   const [phase, setPhase] = useState('memorize'); // 'memorize' | 'select' | 'done'
   const [selectedItems, setSelectedItems] = useState([]);
+  const speak = useGameVoice(language, ['welcome', 'remember_objects']);
 
   const targetItems = [
     { id: 'tea', name: 'Assam Tea Leaves', icon: '🍃' },
@@ -639,6 +684,7 @@ function WeeklyBazaarGame({ onBack }) {
   const handleStartShopping = () => {
     soundFx.playSoftTap();
     setPhase('select');
+    speak('select_object');
   };
 
   const handleSelectItem = (item) => {
@@ -658,6 +704,9 @@ function WeeklyBazaarGame({ onBack }) {
       if (matchAll) {
         soundFx.playSuccess();
         setPhase('done');
+        speak('game_complete');
+      } else {
+        speak('wrong');
       }
     }
   };
@@ -666,6 +715,7 @@ function WeeklyBazaarGame({ onBack }) {
     soundFx.playSoftTap();
     setSelectedItems([]);
     setPhase('memorize');
+    speak('remember_objects');
   };
 
   return (
