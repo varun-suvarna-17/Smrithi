@@ -1,18 +1,3 @@
-
-# Smrithi
-
-#firebase rules
-
-rules_version = '2';
-
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /{document=**} {
-      allow read, write: if false;
-    }
-  }
-}
-=======
 # SMRITHI – AI-Powered Elderly Care Platform
 ### Cognitive Gaming and Memory Assistance Platform for Elderly Dementia Patients in North East India
 **Smart India Hackathon (SIH) Problem Statement:** `SIH26003`

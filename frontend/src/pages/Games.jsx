@@ -1,5 +1,4 @@
-import React, { useState } from 'react';
-import { Heart, Play, UtensilsCrossed, Music, Grid3X3, ShoppingBag, ArrowLeft, Lightbulb, CheckCircle2, RefreshCw, Volume2, Sparkles } from 'lucide-react';
+import { ArrowLeft, Lightbulb, CheckCircle2, RefreshCw, Volume2 } from 'lucide-react';
 import { soundFx } from '../utils/audio';
 
 export default function Games() {
@@ -510,7 +509,7 @@ function RhythmMatchGame({ onBack }) {
 /* GAME 4: FOLK MOTIF WEAVER INTERACTIVE COMPONENT                             */
 /* ========================================================================== */
 function FolkMotifGame({ onBack }) {
-  const [selectedMotif, setSelectedMotif] = useState(null);
+  const [_selectedMotif, setSelectedMotif] = useState(null);
   const [isCorrect, setIsCorrect] = useState(false);
 
   const options = [
