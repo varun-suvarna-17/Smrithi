@@ -1,17 +1,39 @@
-from fastapi import APIRouter, HTTPException
-from app.models.patient import PatientProfile
-from app.services.firestore_service import create_patient, get_patient
+from fastapi import APIRouter, Depends, HTTPException, status
+from app.auth.firebase_middleware import get_current_caregiver_id
+from app.models.patient import PatientCreate, PatientUpdate, PatientOut
+from app.services import firestore_service as fs
 
-router = APIRouter(prefix="/profile", tags=["profile"])
+router = APIRouter(prefix="/api/patients", tags=["patients"])
 
-@router.post("/")
-def create_profile(profile: PatientProfile):
-    patient_id = create_patient(profile.model_dump())
-    return {"patient_id": patient_id}
+
+@router.post("", status_code=201)
+def create_patient(
+    body: PatientCreate,
+    caregiver_id: str = Depends(get_current_caregiver_id),
+):
+    """Create a patient profile under the authenticated caregiver."""
+    patient_id = fs.create_patient(caregiver_id, body.model_dump())
+    return {"patientId": patient_id}
+
 
 @router.get("/{patient_id}")
-def read_profile(patient_id: str):
-    patient = get_patient(patient_id)
-    if not patient:
-        raise HTTPException(status_code=404, detail="Patient not found")
-    return patient
+def get_patient(
+    patient_id: str,
+    caregiver_id: str = Depends(get_current_caregiver_id),
+):
+    """Fetch a patient profile. Also used by game engine at session start to read difficultyLevel."""
+    return fs.get_patient(caregiver_id, patient_id)
+
+
+@router.patch("/{patient_id}", status_code=200)
+def update_patient(
+    patient_id: str,
+    body: PatientUpdate,
+    caregiver_id: str = Depends(get_current_caregiver_id),
+):
+    """Update mutable patient fields (e.g. contentLanguage, avatarAssetId)."""
+    data = {k: v for k, v in body.model_dump().items() if v is not None}
+    if not data:
+        raise HTTPException(status_code=400, detail="No fields provided to update.")
+    fs.update_patient(caregiver_id, patient_id, data)
+    return {"status": "updated"}

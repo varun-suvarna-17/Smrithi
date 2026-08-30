@@ -1,0 +1,596 @@
+{
+	"info": {
+		"_postman_id": "smrithi-backend-sih26003",
+		"name": "SMRITHI Backend API (SIH26003)",
+		"description": "Postman Collection for SMRITHI – AI-Based Cognitive Gaming and Memory Assistance Platform for Elderly Dementia Patients in North Eastern Region (NER).",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://127.0.0.1:8000",
+			"type": "string"
+		},
+		{
+			"key": "auth_token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "patient_id",
+			"value": "P001",
+			"type": "string"
+		},
+		{
+			"key": "caregiver_id",
+			"value": "cg_demo_001",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "1. System Health",
+			"item": [
+				{
+					"name": "Health Check",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/health",
+							"host": ["{{base_url}}"],
+							"path": ["health"]
+						},
+						"description": "Checks backend status, database connection mode, and loaded game registry."
+					}
+				}
+			]
+		},
+		{
+			"name": "2. Authentication",
+			"item": [
+				{
+					"name": "Register Caregiver / User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"ananya.caregiver@smrithi.org\",\n  \"password\": \"SmrithiCare#2026\",\n  \"full_name\": \"Ananya Sharma\",\n  \"role\": \"caregiver\",\n  \"phone\": \"+91-9876543210\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/register",
+							"host": ["{{base_url}}"],
+							"path": ["api", "auth", "register"]
+						}
+					}
+				},
+				{
+					"name": "Login (Generate JWT)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData.access_token) {",
+									"    pm.collectionVariables.set('auth_token', jsonData.access_token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"ananya.caregiver@smrithi.org\",\n  \"password\": \"SmrithiCare#2026\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/login",
+							"host": ["{{base_url}}"],
+							"path": ["api", "auth", "login"]
+						}
+					}
+				},
+				{
+					"name": "Get Current User (Me)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/auth/me",
+							"host": ["{{base_url}}"],
+							"path": ["api", "auth", "me"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "3. Patients Management",
+			"item": [
+				{
+					"name": "Create Patient",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Biren Borthakur\",\n  \"age\": 74,\n  \"gender\": \"Male\",\n  \"dementia_stage\": \"Early Stage\",\n  \"preferred_language\": \"as\",\n  \"emergency_contact\": \"+91-9876543210 (Ananya Sharma)\",\n  \"medical_notes\": \"Mild memory impairment. Familiar with Assamese folk motifs and tea culture.\",\n  \"baseline_mmse_score\": 24,\n  \"caregiver_id\": \"{{caregiver_id}}\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/patients/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "patients", ""]
+						}
+					}
+				},
+				{
+					"name": "List Patients",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/patients/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "patients", ""]
+						}
+					}
+				},
+				{
+					"name": "Get Patient by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/patients/{{patient_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "patients", "{{patient_id}}"]
+						}
+					}
+				},
+				{
+					"name": "Update Patient",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"age\": 75,\n  \"medical_notes\": \"Updated: responding very well to Assamese audio prompts and daily sequence games.\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/patients/{{patient_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "patients", "{{patient_id}}"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "4. Caregivers Management",
+			"item": [
+				{
+					"name": "Create Caregiver",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Ananya Sharma\",\n  \"relationship\": \"Daughter & Primary Caregiver\",\n  \"phone\": \"+91-9876543210\",\n  \"email\": \"ananya.caregiver@smrithi.org\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/caregivers/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "caregivers", ""]
+						}
+					}
+				},
+				{
+					"name": "Associate Caregiver with Patient",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"patient_id\": \"{{patient_id}}\",\n  \"caregiver_id\": \"{{caregiver_id}}\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/caregivers/associate",
+							"host": ["{{base_url}}"],
+							"path": ["api", "caregivers", "associate"]
+						}
+					}
+				},
+				{
+					"name": "Get Caregiver Assigned Patients",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/caregivers/{{caregiver_id}}/patients",
+							"host": ["{{base_url}}"],
+							"path": ["api", "caregivers", "{{caregiver_id}}", "patients"]
+						}
+					}
+				},
+				{
+					"name": "Get Caregiver Alerts",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/caregivers/{{caregiver_id}}/alerts",
+							"host": ["{{base_url}}"],
+							"path": ["api", "caregivers", "{{caregiver_id}}", "alerts"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "5. Cognitive Games",
+			"item": [
+				{
+					"name": "List All 5 Cognitive Games",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/games/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "games", ""]
+						}
+					}
+				},
+				{
+					"name": "Start Game Session (Memory Match)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"patient_id\": \"{{patient_id}}\",\n  \"game_type\": \"memory\",\n  \"difficulty_level\": 2,\n  \"language\": \"as\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/games/start",
+							"host": ["{{base_url}}"],
+							"path": ["api", "games", "start"]
+						}
+					}
+				},
+				{
+					"name": "Start Game Session (Sequence Recall)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"patient_id\": \"{{patient_id}}\",\n  \"game_type\": \"sequence\",\n  \"difficulty_level\": 1,\n  \"language\": \"as\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/games/start",
+							"host": ["{{base_url}}"],
+							"path": ["api", "games", "start"]
+						}
+					}
+				},
+				{
+					"name": "Submit Game Result (Attempt)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"patient_id\": \"{{patient_id}}\",\n  \"session_id\": \"sess_live_101\",\n  \"game_type\": \"memory\",\n  \"difficulty_level\": 2,\n  \"score\": 4,\n  \"total_questions\": 4,\n  \"correct_answers\": 4,\n  \"response_time_ms\": 3200,\n  \"mistakes\": 0,\n  \"attempts\": 1,\n  \"session_duration_seconds\": 45\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/games/submit-result",
+							"host": ["{{base_url}}"],
+							"path": ["api", "games", "submit-result"]
+						}
+					}
+				},
+				{
+					"name": "Get Patient Game History",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/games/attempts/{{patient_id}}?limit=20",
+							"host": ["{{base_url}}"],
+							"path": ["api", "games", "attempts", "{{patient_id}}"],
+							"query": [
+								{
+									"key": "limit",
+									"value": "20"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "6. Adaptive Difficulty",
+			"item": [
+				{
+					"name": "Evaluate Adaptive Difficulty",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"patient_id\": \"{{patient_id}}\",\n  \"game_type\": \"memory\",\n  \"current_difficulty\": 2\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/adaptive/evaluate",
+							"host": ["{{base_url}}"],
+							"path": ["api", "adaptive", "evaluate"]
+						}
+					}
+				},
+				{
+					"name": "Get Patient Game Adaptive Level",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/games/adaptive-difficulty/{{patient_id}}/memory",
+							"host": ["{{base_url}}"],
+							"path": ["api", "games", "adaptive-difficulty", "{{patient_id}}", "memory"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "7. Cognitive Progress & Analytics",
+			"item": [
+				{
+					"name": "Get Progress Summary",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/progress/{{patient_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "progress", "{{patient_id}}"]
+						}
+					}
+				},
+				{
+					"name": "Get Full Multi-Domain Analytics",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/analytics/{{patient_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "analytics", "{{patient_id}}"]
+						}
+					}
+				},
+				{
+					"name": "Get 5 Domain Breakdown",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/analytics/{{patient_id}}/domain-breakdown",
+							"host": ["{{base_url}}"],
+							"path": ["api", "analytics", "{{patient_id}}", "domain-breakdown"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "8. Multilingual & NER Support",
+			"item": [
+				{
+					"name": "Get Supported NER Languages",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/languages",
+							"host": ["{{base_url}}"],
+							"path": ["api", "languages"]
+						}
+					}
+				},
+				{
+					"name": "Get Localized Content (Assamese)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/languages/content/as",
+							"host": ["{{base_url}}"],
+							"path": ["api", "languages", "content", "as"]
+						}
+					}
+				},
+				{
+					"name": "Translate Text / Prompt",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"text\": \"Welcome to Smrithi Cognitive Memory Exercise\",\n  \"source_language\": \"en\",\n  \"target_language\": \"as\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/languages/translate",
+							"host": ["{{base_url}}"],
+							"path": ["api", "languages", "translate"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "9. Voice / TTS Synthesis",
+			"item": [
+				{
+					"name": "Synthesize Speech (TTS)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"text\": \"তলৰ বস্তুবোৰ মনোযোগেৰে চাওক আৰু সঠিক বস্তুটো মনত ৰাখক।\",\n  \"language\": \"as\",\n  \"speed_rate\": 1.0\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/voice/synthesize",
+							"host": ["{{base_url}}"],
+							"path": ["api", "voice", "synthesize"]
+						}
+					}
+				},
+				{
+					"name": "Get Supported Voices",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/voice/voices",
+							"host": ["{{base_url}}"],
+							"path": ["api", "voice", "voices"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "10. Reminders",
+			"item": [
+				{
+					"name": "Create Reminder",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"patient_id\": \"{{patient_id}}\",\n  \"title\": \"Evening Cognitive Session\",\n  \"message\": \"Time for your evening 10-minute North Eastern Memory Activity.\",\n  \"reminder_type\": \"cognitive_game\",\n  \"scheduled_time\": \"2026-08-29T18:00:00\",\n  \"recurring\": true,\n  \"frequency\": \"daily\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/reminders",
+							"host": ["{{base_url}}"],
+							"path": ["api", "reminders"]
+						}
+					}
+				},
+				{
+					"name": "Get Patient Reminders",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/reminders/patient/{{patient_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "reminders", "patient", "{{patient_id}}"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "11. AI Progress Reports",
+			"item": [
+				{
+					"name": "Generate Doctor-Ready Progress Report",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/reports/patient/{{patient_id}}/progress-report?days=30",
+							"host": ["{{base_url}}"],
+							"path": ["api", "reports", "patient", "{{patient_id}}", "progress-report"],
+							"query": [
+								{
+									"key": "days",
+									"value": "30"
+								}
+							]
+						}
+					}
+				}
+			]
+		}
+	]
+}

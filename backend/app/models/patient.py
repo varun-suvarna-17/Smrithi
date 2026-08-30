@@ -1,12 +1,26 @@
 from pydantic import BaseModel
 from typing import Optional
+from datetime import datetime
 
-class PatientProfile(BaseModel):
+
+class PatientCreate(BaseModel):
     name: str
-    language: str
-    age: Optional[int] = None
-    personalization_facts: Optional[dict] = None  # for Phase 2 LLM content
+    age: int
+    contentLanguage: str          # opaque string — validated by content team, not here
+    avatarAssetId: Optional[str] = None
 
-class PatientSettings(BaseModel):
-    difficulty_level: str  # "easy" | "medium" | "hard"
-    reminder_times: list[str] = []
+
+class PatientUpdate(BaseModel):
+    name: Optional[str] = None
+    age: Optional[int] = None
+    contentLanguage: Optional[str] = None
+    avatarAssetId: Optional[str] = None
+
+
+class PatientOut(BaseModel):
+    patientId: str
+    name: str
+    age: int
+    contentLanguage: str
+    avatarAssetId: Optional[str] = None
+    createdAt: Optional[datetime] = None

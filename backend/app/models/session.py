@@ -1,13 +1,20 @@
 from pydantic import BaseModel
+from typing import Literal, Optional
 from datetime import datetime
 
-class SessionCreate(BaseModel):
-    patient_id: str
-    game_type: str          # "memory_recall" | "pattern_recognition"
-    accuracy: float          # 0-100
-    response_time_avg: float # seconds
-    difficulty_level: str
 
-class SessionResponse(SessionCreate):
-    session_id: str
-    timestamp: datetime
+class SessionCreate(BaseModel):
+    gameType: Literal["memory_recall", "pattern_recognition"]
+    startedAt: datetime
+    endedAt: Optional[datetime] = None
+    completed: bool
+    languageUsed: str
+    difficultyLevel: int          # integer, e.g. 1-3; rule computed by game engine
+    correctCount: int
+    wrongCount: int
+    difficultyDropped: bool       # true if rule-based logic (3 wrong → easier) fired
+
+
+class SessionOut(SessionCreate):
+    sessionId: str
+    createdAt: Optional[datetime] = None

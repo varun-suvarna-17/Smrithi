@@ -3,8 +3,10 @@ import { Routes, Route, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 
 import Layout from './components/Layout';
+import ProtectedRoute from './components/ProtectedRoute';
 import OfflineIndicator from './components/OfflineIndicator';
 
+import LoginSignup from './pages/LoginSignup';
 import Home from './pages/Home';
 import DailyCare from './pages/DailyCare';
 import Games from './pages/Games';
@@ -18,19 +20,32 @@ export default function App() {
   return (
     <>
       <OfflineIndicator />
-      
-      <Layout>
-        <AnimatePresence mode="wait">
-          <Routes location={location} key={location.pathname}>
-            <Route path="/" element={<PageTransition><Home /></PageTransition>} />
-            <Route path="/schedule" element={<PageTransition><DailyCare /></PageTransition>} />
-            <Route path="/games" element={<PageTransition><Games /></PageTransition>} />
-            <Route path="/activities" element={<PageTransition><ActivityHub /></PageTransition>} />
-            <Route path="/memories" element={<PageTransition><Memories /></PageTransition>} />
-            <Route path="/caregiver" element={<PageTransition><CaregiverDashboard /></PageTransition>} />
-          </Routes>
-        </AnimatePresence>
-      </Layout>
+
+      <Routes location={location} key={location.pathname}>
+        {/* Public route — no layout */}
+        <Route path="/login-signup" element={<LoginSignup />} />
+
+        {/* Protected routes — with layout */}
+        <Route
+          path="*"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <AnimatePresence mode="wait">
+                  <Routes location={location} key={location.pathname}>
+                    <Route path="/" element={<PageTransition><Home /></PageTransition>} />
+                    <Route path="/schedule" element={<PageTransition><DailyCare /></PageTransition>} />
+                    <Route path="/games" element={<PageTransition><Games /></PageTransition>} />
+                    <Route path="/activities" element={<PageTransition><ActivityHub /></PageTransition>} />
+                    <Route path="/memories" element={<PageTransition><Memories /></PageTransition>} />
+                    <Route path="/caregiver" element={<PageTransition><CaregiverDashboard /></PageTransition>} />
+                  </Routes>
+                </AnimatePresence>
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+      </Routes>
     </>
   );
 }

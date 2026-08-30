@@ -1,10 +1,10 @@
+# NOTE: The PUT /settings/{patient_id} route that was previously here has been
+# absorbed into PATCH /api/patients/{patientId} (see routes/profile.py).
+# This stub is kept so existing imports don't error during migration.
+# It can be deleted once no other code references it.
+
 from fastapi import APIRouter
-from app.models.patient import PatientSettings
-from app.services.firestore_service import update_settings
 
-router = APIRouter(prefix="/settings", tags=["settings"])
+router = APIRouter(prefix="/settings", tags=["settings-deprecated"])
 
-@router.put("/{patient_id}")
-def set_settings(patient_id: str, settings: PatientSettings):
-    update_settings(patient_id, settings.model_dump())
-    return {"status": "updated"}
+# No active endpoints. Use PATCH /api/patients/{patientId} instead.
