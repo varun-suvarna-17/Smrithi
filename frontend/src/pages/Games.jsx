@@ -1,3 +1,4 @@
+import { ArrowLeft, Lightbulb, CheckCircle2, RefreshCw, Volume2 } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { Heart, Play, UtensilsCrossed, Music, Grid3X3, ShoppingBag, ArrowLeft, Lightbulb, CheckCircle2, RefreshCw, Volume2, Sparkles } from 'lucide-react';
 import { soundFx } from '../utils/audio';

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Gamepad2, Mic, Eye, CheckCircle2, Clock, Music, Flower2, Heart, PlusCircle, ArrowRight, X } from 'lucide-react';
+import { Gamepad2, Mic, CheckCircle2, Clock, Music, Flower2, Heart, PlusCircle, X } from 'lucide-react';
 
 export default function Home() {
   const navigate = useNavigate();
