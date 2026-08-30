@@ -1,4 +1,4 @@
-# Environment variables
+# Environment variables & Secrets
 .env
 .env.*
 .env.local
@@ -20,6 +20,8 @@ env/
 venv/
 ENV/
 .venv/
+
+# Build / Distribution
 build/
 develop-eggs/
 dist/

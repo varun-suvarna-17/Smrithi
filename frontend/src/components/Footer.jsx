@@ -9,7 +9,7 @@ export default function Footer() {
         <div style={styles.leftCol}>
           <span style={styles.logoText}>SMRITHI</span>
           <span style={styles.copyrightText}>
-            © 2024 SMRITHI. Your caring cognitive companion.
+            © 2026 SMRITHI. Your caring cognitive companion.
           </span>
         </div>
 

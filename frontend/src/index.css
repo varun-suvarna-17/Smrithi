@@ -230,3 +230,132 @@ button {
 .font-medium  { font-weight: 500; }
 .font-semibold{ font-weight: 600; }
 .font-bold    { font-weight: 700; }
+
+/* ── Top-right Header Icon Interactive States & Dropdowns ─────────── */
+.nav-icon-btn {
+  position: relative;
+  color: var(--primary-green);
+  padding: 8px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+  outline: none;
+}
+
+.nav-icon-btn:hover {
+  background-color: #DCEDE6;
+}
+
+.nav-icon-btn:active,
+.nav-icon-btn.is-active {
+  background-color: #C5E1D4;
+}
+
+.nav-icon-btn:focus-visible {
+  box-shadow: 0 0 0 3px rgba(30, 101, 53, 0.2);
+}
+
+.nav-avatar-btn {
+  position: relative;
+  padding: 4px;
+  border-radius: 50%;
+  background-color: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border: none;
+  transition: background-color 0.2s ease, transform 0.15s ease;
+  outline: none;
+}
+
+.nav-avatar-btn:hover {
+  background-color: #DCEDE6;
+}
+
+.nav-avatar-btn:active,
+.nav-avatar-btn.is-active {
+  background-color: #C5E1D4;
+}
+
+.nav-avatar-btn:focus-visible {
+  box-shadow: 0 0 0 3px rgba(30, 101, 53, 0.2);
+}
+
+.nav-badge-dot {
+  position: absolute;
+  top: 7px;
+  right: 7px;
+  width: 10px;
+  height: 10px;
+  background-color: #FF5A5F;
+  border-radius: 50%;
+  border: 2px solid var(--surface-color, #ffffff);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+
+.nav-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 0;
+  background-color: var(--surface-color, #ffffff);
+  border: 1px solid var(--border-color, #d2ebd4);
+  border-radius: var(--radius-md, 14px);
+  box-shadow: 0 12px 32px rgba(20, 36, 24, 0.12), 0 2px 8px rgba(0, 0, 0, 0.04);
+  z-index: 1000;
+  overflow: hidden;
+}
+
+/* Ivory Notification Card */
+.ivory-card {
+  background-color: #FAF9F5;
+  border: 1px solid #E6ECE6;
+  border-radius: 12px;
+  padding: 12px 14px;
+  transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
+  cursor: pointer;
+}
+
+.ivory-card:hover {
+  background-color: #F4F2EC;
+  border-color: #D6E0D5;
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 10px 14px;
+  color: var(--text-main, #142418);
+  font-size: 0.925rem;
+  font-weight: 500;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 8px;
+  text-align: left;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.dropdown-item:hover {
+  background-color: #DCEDE6;
+  color: var(--primary-green, #1e6535);
+}
+
+.dropdown-item.danger {
+  color: #c0392b;
+}
+
+.dropdown-item.danger:hover {
+  background-color: #FDE8E8;
+  color: #e74c3c;
+}
+
